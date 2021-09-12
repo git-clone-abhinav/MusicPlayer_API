@@ -27,12 +27,37 @@ def status():
 
 @app.route('/songlink/<songname>', methods=['GET'])
 @cross_origin()
-def the_link(songname):
+def song_link(songname):
     try:
         song = music.get_song_link(songname)
-        return song, 200 # Everything okay
+        # this song is in bytes format, since the subprocess library return a bytes format
+        # converting this to string
+        song = str(song).lstrip("b'").rstrip("\\n'")
+        return song, 200# Everything okay
     except:
-        return "Song Not Found", 301 
+        return "Song Not Found", 301
+
+@app.route('/songredirect/<songname>', methods=['GET'])
+@cross_origin()
+def song_redirect(songname):
+    try:
+        song = music.get_song_link(songname)
+        # this song is in bytes format, since the subprocess library return a bytes format
+        # converting this to string
+        song = str(song).lstrip("b'").rstrip("\\n'")
+        return redirect(song, 200)# Everything okay
+    except:
+        return "Song Not Found", 301
+
+@app.route('/addqueue/<songname>', methods=['GET'])
+@cross_origin()
+def add_queue(songname):
+    try:
+        song = music.get_song_link(songname)
+        song = str(song).lstrip("b'").rstrip("\\n'")
+        return redirect(song, 200)# Everything okay
+    except:
+        return "Song Not Found", 301
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=1200)
