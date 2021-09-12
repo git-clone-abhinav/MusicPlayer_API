@@ -44,7 +44,6 @@ def song_redirect(songname):
         song = music.get_song_link(songname)
         # this song is in bytes format, since the subprocess library return a bytes format
         # converting this to string
-        song = str(song).lstrip("b'").rstrip("\\n'")
         return redirect(song, 200)# Everything okay
     except:
         return "Song Not Found", 301
@@ -54,10 +53,17 @@ def song_redirect(songname):
 def add_queue(songname):
     try:
         song = music.get_song_link(songname)
-        song = str(song).lstrip("b'").rstrip("\\n'")
         return redirect(song, 200)# Everything okay
     except:
         return "Song Not Found", 301
+
+@app.route('/metadata/<name>', methods=['GET'])
+@cross_origin()
+def metadata(name):
+    try:
+        return jsonify(music.get_metadata(name)), 200# Everything okay
+    except Exception as e:
+        return e, 301
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=1200)
