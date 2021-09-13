@@ -11,7 +11,7 @@ def checkQueue():
         
 
 def updateQueue(songData):
-    with open('/home/pi/Desktop/MusicPlayer_API/queue.txt', 'a') as f:
+    with open('/home/pi/Desktop/MusicPlayer_API/playerstatus.txt', 'a') as f:
         f.write(f"{songData}\n".format())
         f.close()
 
@@ -23,5 +23,3 @@ def make_songData(name):
 
 def addSong(name):
     updateQueue(make_songData(name))
-
-checkQueue()

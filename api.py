@@ -5,8 +5,10 @@ from flask_restful import Api
 from flask_cors import CORS, cross_origin
 import logger
 import os.path
+import os
 from os import path
-import music 
+import music
+import queueGen
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -21,47 +23,25 @@ def welcome():
 @app.route('/status/', methods=['GET'])
 @cross_origin()
 def status():
-    if path.exists("/home/pi/Desktop/MusicPlayer_API/logs.txt"):
-        status = logger.read()
-        return status, 200 # Everything Okay Data is returned
-
-@app.route('/songlink/<songname>', methods=['GET'])
-@cross_origin()
-def song_link(songname):
-    try:
-        song = music.get_song_link(songname)
-        # this song is in bytes format, since the subprocess library return a bytes format
-        # converting this to string
-        song = str(song).lstrip("b'").rstrip("\\n'")
-        return song, 200# Everything okay
-    except:
-        return "Song Not Found", 301
-
-@app.route('/songredirect/<songname>', methods=['GET'])
-@cross_origin()
-def song_redirect(songname):
-    try:
-        song = music.get_song_link(songname)
-        # this song is in bytes format, since the subprocess library return a bytes format
-        # converting this to string
-        return redirect(song, 200)# Everything okay
-    except:
-        return "Song Not Found", 301
-
-@app.route('/addqueue/<songname>', methods=['GET'])
-@cross_origin()
-def add_queue(songname):
-    try:
-        song = music.get_song_link(songname)
-        return redirect(song, 200)# Everything okay
-    except:
-        return "Song Not Found", 301
+    status = logger.PlayerStatus()
+    lm = os.path.getmtime("/home/pi/Desktop/MusicPlayer_API/queue.txt")
+    data = {'status' : status,'lm' : lm}
+    return jsonify(data), 200 # Everything Okay Data is returned
 
 @app.route('/metadata/<name>', methods=['GET'])
 @cross_origin()
 def metadata(name):
     try:
         return jsonify(music.get_metadata(name)), 200# Everything okay
+    except Exception as e:
+        return e, 301
+        
+@app.route('/add/<name>', methods=['GET'])
+@cross_origin()
+def add(name):
+    try:
+        queueGen.addSong(name)
+        return "song successfully added", 200# Everything okay
     except Exception as e:
         return e, 301
 
